@@ -1214,13 +1214,7 @@ run(function()
 		end 
 	end
 
-	task.spawn(function()
-		repeat
-			if whitelist:check(whitelist.loaded) then return end
-			shared.vapewhitelist = table.clone(whitelist)
-			task.wait(10)
-		until shared.VapeInjected == nil
-	end)
+
 	--[[table.insert(vapeConnections, {Disconnect = function()
 		if whitelist.connection then whitelist.connection:Disconnect() end
 		table.clear(whitelist.commands)
@@ -1228,7 +1222,6 @@ run(function()
 		table.clear(whitelist)
 	end})--]]
 end)
-shared.vapewhitelist = table.clone(whitelist)
 pcall(function()
 	if shared.CheatEngineMode then
 		local whitelist2 = {commands = {}}
